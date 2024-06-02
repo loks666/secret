@@ -1,8 +1,7 @@
 # receiver.py
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit, QLabel, \
-    QStackedWidget, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit, QLabel, QStackedWidget, QHBoxLayout
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from Crypto.PublicKey import RSA
@@ -14,7 +13,6 @@ import imaplib
 import email
 from database import SessionLocal, get_user_by_username, create_user, get_user_by_email
 
-
 class RegisterLoginWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -25,13 +23,13 @@ class RegisterLoginWindow(QWidget):
         self.setWindowTitle('注册 & 登录')
         self.setGeometry(100, 100, 600, 400)
 
-        self.stacked_widget = QStackedWidget(self)
-        self.login_widget = QWidget()
-        self.register_widget = QWidget()
-
         # 设置全局字体
         font = QFont('微软雅黑', 10)
         self.setFont(font)
+
+        self.stacked_widget = QStackedWidget(self)
+        self.login_widget = QWidget()
+        self.register_widget = QWidget()
 
         # 登录界面
         login_layout = QVBoxLayout()
@@ -228,7 +226,14 @@ class ReceiveEmailWindow(QWidget):
         self.setWindowTitle('接收邮件')
         self.setGeometry(100, 100, 800, 600)
 
+        # 设置全局字体
+        font = QFont('微软雅黑', 10)
+        self.setFont(font)
+
         layout = QVBoxLayout()
+
+        self.sender_email_label = QLabel('发送者邮箱: ', self)
+        layout.addWidget(self.sender_email_label)
 
         self.email_content_display = QTextEdit(self)
         self.email_content_display.setReadOnly(True)
@@ -306,6 +311,9 @@ class ReceiveEmailWindow(QWidget):
             status, data = mail.fetch(latest_email_id, '(RFC822)')
             raw_email = data[0][1].decode('utf-8')
             msg = email.message_from_string(raw_email)
+
+            sender_email = email.utils.parseaddr(msg['From'])[1]
+            self.sender_email_label.setText(f'发送者邮箱: {sender_email}')
 
             encrypted_content = msg.get_payload(decode=True).decode('utf-8')
             self.email_content_display.setPlainText(encrypted_content)
